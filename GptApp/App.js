@@ -2,17 +2,37 @@ import { StatusBar } from 'expo-status-bar';
 import { useState } from 'react';
 import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import {MaterialIcons} from '@expo/vector-icons'
+import { GiftedChat } from 'react-native-gifted-chat';
 
 export default function App() {
   const [inputMsg, setInputMsg] = useState('')
+  const [messages, setMessages] = useState([])
   const [ansMsg, setAnsMsg] = useState('Result to be shown')
 
-  const handleBtnClick = () => {
+
+  const onHandleBtnClick = () => {
+    if(inputMsg.toLocaleLowerCase().startsWith('generate image')){
+      generateImg()
+    }else{
+      generateText()
+    }
+  }
+
+  const generateText = () => {
+    const message = {
+      _id: Math.random().toString(36).substring(7),
+      text: inputMsg,
+      createAt: new Date(),
+      user: {_id: 1}
+    }
+
+    setMessages((prevMsg) => GiftedChat.append(prevMsg, [message]))
+
     fetch(`https://api.openai.com/v1/chat/completions`, {
       method: 'POST',
       headers: {
         "Content-Type": "application/json",
-      "Authorization": "Bearer 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"
+      "Authorization": "Bearer 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"
     },
       body: JSON.stringify({
         "messages": [{"role": "user", "content": inputMsg}],
@@ -20,18 +40,39 @@ export default function App() {
       })
 
     }).then(res => res.json()).then(data => {
-      setAnsMsg(data.choices[0].message.content.trim())
-    })
+      // setAnsMsg(data.choices[0].message.content.trim())
+
+      console.log(data)
+      const message = {
+        _id: Math.random().toString(36).substring(7),
+        text: data.choices[0].message.content.trim(),
+        createAt: new Date(),
+        user: { _id: 2, name: 'Open AI'}
+      }
+  
+      setMessages((prevMsg) => GiftedChat.append(prevMsg, [message])) 
+
+    }).catch(err => console.log(err))
 
     setInputMsg('')
   }
 
   const generateImg = () => {
+
+    const message = {
+      _id: Math.random().toString(36).substring(7),
+      text: inputMsg,
+      createAt: new Date(),
+      user: {_id: 1}
+    }
+
+    setMessages((prevMsg) => GiftedChat.append(prevMsg, [message]))
+
     fetch(`https://api.openai.com/v1/images/generations`, {
       method: 'POST',
       headers: {
         "Content-Type": "application/json",
-        "Authorization": "Bearer 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"
+        "Authorization": "Bearer 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"
     },
       body: JSON.stringify({
         "prompt": inputMsg,
@@ -40,8 +81,23 @@ export default function App() {
       })
 
     }).then(res => res.json()).then(data => {
-      console.log(data.data[0].url)
-      setAnsMsg(data.data[0].url)
+      // console.log(data.data[0].url)
+      // setAnsMsg(data.data[0].url)
+
+      data.data.forEach(image => {
+        const message = {
+          _id: Math.random().toString(36).substring(7),
+          text: 'Image',
+          createAt: new Date(),
+          user: { _id: 2, name: 'Open AI'},
+          image: image.url
+        }
+    
+        setMessages((prevMsg) => GiftedChat.append(prevMsg, [message])) 
+      })
+
+      
+
     })
 
     // setInputMsg('')
@@ -55,7 +111,13 @@ export default function App() {
   return (
     <View style={styles.container}>
       <View style={{flex: 1, justifyContent: 'center'}}>
-        <Text>{ansMsg}</Text>
+        {/* <Text>{ansMsg}</Text> */}
+        <GiftedChat 
+          messages={messages}
+          renderInputToolbar={() => { }}
+          minInputToolbarHeight={0}
+          user={{ _id: 1 }}
+        />
       </View>
       
       <View style={styles.textLayout}> 
@@ -63,7 +125,7 @@ export default function App() {
           <TextInput placeholder='Enter your question' onChangeText={onChangeText} />
         </View>
         
-        <TouchableOpacity onPress={handleBtnClick} value={inputMsg}>
+        <TouchableOpacity onPress={onHandleBtnClick} >
           <View style={styles.sendBg}>
             <MaterialIcons name="send" size={20} color={'white'}/>
           </View>
@@ -80,9 +142,7 @@ export default function App() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
+
   },
   textLayout: {
     flexDirection: 'row',
