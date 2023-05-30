@@ -1,8 +1,9 @@
 import { StatusBar } from 'expo-status-bar';
 import { useState } from 'react';
-import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { ImageBackground, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import {MaterialIcons} from '@expo/vector-icons'
 import { GiftedChat } from 'react-native-gifted-chat';
+import * as Speech from 'expo-speech';
 
 export default function App() {
   const [inputMsg, setInputMsg] = useState('')
@@ -32,7 +33,7 @@ export default function App() {
       method: 'POST',
       headers: {
         "Content-Type": "application/json",
-      "Authorization": "Bearer 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"
+      "Authorization": "Bearer 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"
     },
       body: JSON.stringify({
         "messages": [{"role": "user", "content": inputMsg}],
@@ -41,7 +42,7 @@ export default function App() {
 
     }).then(res => res.json()).then(data => {
       // setAnsMsg(data.choices[0].message.content.trim())
-
+setInputMsg('')
       console.log(data)
       const message = {
         _id: Math.random().toString(36).substring(7),
@@ -51,6 +52,8 @@ export default function App() {
       }
   
       setMessages((prevMsg) => GiftedChat.append(prevMsg, [message])) 
+      options={};
+      Speech.speak(data.choices[0].message.content.trim(), options)
 
     }).catch(err => console.log(err))
 
@@ -72,7 +75,7 @@ export default function App() {
       method: 'POST',
       headers: {
         "Content-Type": "application/json",
-        "Authorization": "Bearer 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"
+        "Authorization": "Bearer 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"
     },
       body: JSON.stringify({
         "prompt": inputMsg,
@@ -100,7 +103,7 @@ export default function App() {
 
     })
 
-    // setInputMsg('')
+    setInputMsg('')
   }
 
   const onChangeText = (e) => {
@@ -109,33 +112,36 @@ export default function App() {
 
 
   return (
-    <View style={styles.container}>
-      <View style={{flex: 1, justifyContent: 'center'}}>
-        {/* <Text>{ansMsg}</Text> */}
-        <GiftedChat 
-          messages={messages}
-          renderInputToolbar={() => { }}
-          minInputToolbarHeight={0}
-          user={{ _id: 1 }}
-        />
-      </View>
-      
-      <View style={styles.textLayout}> 
-        <View style={styles.sendLayout}>
-          <TextInput placeholder='Enter your question' onChangeText={onChangeText} />
+    <ImageBackground source={require('./assets/moo.jpg')} resizeMode='cover' style={{flex: 1, width:'100%', height: '100%'}}>
+      <View style={styles.container}>
+        <View style={{flex: 1, justifyContent: 'center'}}>
+          {/* <Text>{ansMsg}</Text> */}
+          <GiftedChat 
+            messages={messages}
+            renderInputToolbar={() => { }}
+            minInputToolbarHeight={0}
+            user={{ _id: 1 }}
+          />
         </View>
         
-        <TouchableOpacity onPress={onHandleBtnClick} >
-          <View style={styles.sendBg}>
-            <MaterialIcons name="send" size={20} color={'white'}/>
+        <View style={styles.textLayout}> 
+          <View style={styles.sendLayout}>
+            <TextInput placeholder='Enter your question' onChangeText={onChangeText} value={inputMsg}/>
           </View>
           
-        </TouchableOpacity>
+          <TouchableOpacity onPress={onHandleBtnClick} >
+            <View style={styles.sendBg}>
+              <MaterialIcons name="send" size={20} color={'white'}/>
+            </View>
+            
+          </TouchableOpacity>
+        </View>
+        
+        
+        <StatusBar style="auto" />
       </View>
-      
-      
-      <StatusBar style="auto" />
-    </View>
+    </ImageBackground>
+ 
   );
 }
 
