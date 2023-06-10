@@ -15,6 +15,16 @@ export default function App() {
 	 */
 	const handleButtonClick = () => {
 		console.log('SEND : ', inputMessage);
+
+		const message = {
+			_id: Math.random().toString(36).substring(7),
+			text: inputMessage,
+			createdAt: new Date(),
+			user: { _id: 1 },
+		};
+
+		setMessages((previousMessages) => GiftedChat.append(previousMessages, [message]));
+
 		fetch('https://api.openai.com/v1/chat/completions', {
 			method: 'POST',
 			headers: {
@@ -30,10 +40,26 @@ export default function App() {
 			.then((data) => {
 				console.log(data.choices[0].messafe.content.trim());
 				setoOutputMessage(data.choices[0].messafe.content.trim());
+
+				const message = {
+					_id: Math.random().toString(36).substring(7),
+					text: data.choices[0].messafe.content.trim(),
+					createdAt: new Date(),
+					user: { _id: 2, name: 'OPEN AI' },
+				};
+
+				setMessages((previousMessages) => GiftedChat.append(previousMessages, [message]));
 			})
 			.catch((error) => {
 				console.log('에러 :', error);
-				setoOutputMessage('잠시후 다시 이용바랍니다.');
+				const message = {
+					_id: Math.random().toString(36).substring(7),
+					text: '잠시후 다시 이용바랍니다.',
+					createdAt: new Date(),
+					user: { _id: 2, name: 'OPEN AI' },
+				};
+
+				setMessages((previousMessages) => GiftedChat.append(previousMessages, [message]));
 			});
 	};
 
@@ -45,6 +71,16 @@ export default function App() {
 	 */
 	const generateImages = () => {
 		console.log('SEND : ', inputMessage);
+
+		const message = {
+			_id: Math.random().toString(36).substring(7),
+			text: inputMessage,
+			createdAt: new Date(),
+			user: { _id: 1 },
+		};
+
+		setMessages((previousMessages) => GiftedChat.append(previousMessages, [message]));
+
 		fetch('https://api.openai.com/v1/images/generations', {
 			method: 'POST',
 			headers: {
@@ -61,10 +97,29 @@ export default function App() {
 			.then((data) => {
 				console.log(data.data[0].url);
 				setOutputImage(data.data[0].url);
+
+				data.data.forEach((generateImage) => {
+					const message = {
+						_id: Math.random().toString(36).substring(7),
+						text: 'Image',
+						createdAt: new Date(),
+						user: { _id: 2, name: 'OPEN AI' },
+						image: generateImage.url,
+					};
+
+					setMessages((previousMessages) => GiftedChat.append(previousMessages, [message]));
+				});
 			})
 			.catch((error) => {
 				console.log('에러 :', error);
-				setOutputImage('잠시후 다시 이용바랍니다.');
+				const message = {
+					_id: Math.random().toString(36).substring(7),
+					text: '잠시후 다시 이용바랍니다.',
+					createdAt: new Date(),
+					user: { _id: 2, name: 'OPEN AI' },
+				};
+
+				setMessages((previousMessages) => GiftedChat.append(previousMessages, [message]));
 			});
 	};
 
@@ -75,11 +130,15 @@ export default function App() {
 
 	return (
 		<View style={{ flex: 1 }}>
-			<View style={{ flex: 1, justifyContent: 'center' }}>
-				<Text>{outputMessage}</Text>
+			<View style={{ flex: 1, justifyContent: 'center', padding: 10 }}>
 				{/* <Text>{outputImage}</Text> */}
-
-				<GiftedChat messages={messages} renderInputToolbar={() => {}} />
+				{/* <Text>{outputMessage}</Text> */}
+				<GiftedChat
+					messages={messages}
+					renderInputToolbar={() => {}}
+					user={{ _id: 1 }}
+					minInputToolbarHeight={0}
+				/>
 			</View>
 
 			<View style={{ flexDirection: 'row', marginHorizontal: 10, marginBottom: 20 }}>
