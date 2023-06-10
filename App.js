@@ -2,8 +2,10 @@ import { StatusBar } from 'expo-status-bar';
 import { useState } from 'react';
 import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
+import { GiftedChat } from 'react-native-gifted-chat';
 
 export default function App() {
+	const [messages, setMessages] = useState([]);
 	const [inputMessage, setInputMessage] = useState('');
 	const [outputMessage, setoOutputMessage] = useState('Result to be shown here!');
 	const [outputImage, setOutputImage] = useState('Result to be shown here!');
@@ -72,10 +74,12 @@ export default function App() {
 	};
 
 	return (
-		<View style={styles.container}>
+		<View style={{ flex: 1 }}>
 			<View style={{ flex: 1, justifyContent: 'center' }}>
 				<Text>{outputMessage}</Text>
-				<Text>{outputImage}</Text>
+				{/* <Text>{outputImage}</Text> */}
+
+				<GiftedChat messages={messages} renderInputToolbar={() => {}} />
 			</View>
 
 			<View style={{ flexDirection: 'row', marginHorizontal: 10, marginBottom: 20 }}>
@@ -122,12 +126,3 @@ export default function App() {
 		</View>
 	);
 }
-
-const styles = StyleSheet.create({
-	container: {
-		flex: 1,
-		backgroundColor: '#fff',
-		alignItems: 'center',
-		justifyContent: 'center',
-	},
-});
