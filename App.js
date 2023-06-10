@@ -1,6 +1,7 @@
 import { StatusBar } from 'expo-status-bar';
 import { useState } from 'react';
 import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { MaterialIcons } from '@expo/vector-icons';
 
 export default function App() {
 	const [inputMessage, setInputMessage] = useState('');
@@ -78,13 +79,41 @@ export default function App() {
 			</View>
 
 			<View style={{ flexDirection: 'row', marginHorizontal: 10, marginBottom: 20 }}>
-				<View style={{ flex: 1 }}>
+				<View
+					style={{
+						flex: 1,
+						backgroundColor: 'white',
+						borderRadius: 10,
+						borderColor: 'grey',
+						borderWidth: 1,
+						height: 60,
+						marginHorizontal: 10,
+						justifyContent: 'center',
+						paddingHorizontal: 10,
+					}}
+				>
 					<TextInput placeholder="Enter your question" onChangeText={handleTextInput} />
 				</View>
 
 				<TouchableOpacity onPress={generateImages}>
-					<View style={{ backgroundColor: 'red', padding: 5 }}>
-						<Text>Send</Text>
+					<View
+						style={{
+							backgroundColor: 'green',
+							padding: 5,
+							marginRight: 10,
+							marginBottom: 10,
+							borderRadius: '100%',
+							width: 60,
+							height: 60,
+							justifyContent: 'center',
+						}}
+					>
+						<MaterialIcons
+							name="send"
+							size={30}
+							color={'white'}
+							style={{ marginHorizontal: 'auto' }}
+						/>
 					</View>
 				</TouchableOpacity>
 			</View>
