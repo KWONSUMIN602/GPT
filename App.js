@@ -1,15 +1,23 @@
 import { StatusBar } from 'expo-status-bar';
-import { useState } from 'react';
-import { ImageBackground, TextInput, TouchableOpacity, View } from 'react-native';
+import { useState, useEffect } from 'react';
+import {
+	ImageBackground,
+	TextInput,
+	TouchableOpacity,
+	View,
+	KeyboardAvoidingView,
+	NativeModules,
+} from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { GiftedChat } from 'react-native-gifted-chat';
 import * as Speech from 'expo-speech';
 
+const { StatusBarManager } = NativeModules;
+
 export default function App() {
 	const [messages, setMessages] = useState([]);
 	const [inputMessage, setInputMessage] = useState('');
-	const [outputMessage, setOutputMessage] = useState('Result to be shown here!');
-	const [outputImage, setOutputImage] = useState('Result to be shown here!');
+	const [statusBarHeight, setStatusBarHeight] = useState(0);
 
 	const handleButtonClick = () => {
 		console.log(inputMessage);
@@ -50,9 +58,6 @@ export default function App() {
 		})
 			.then((res) => res.json())
 			.then((data) => {
-				console.log(data.choices[0].messafe.content.trim());
-				setOutputMessage(data.choices[0].messafe.content.trim());
-
 				const message = {
 					_id: Math.random().toString(36).substring(7),
 					text: data.choices[0].messafe.content.trim(),
@@ -112,9 +117,6 @@ export default function App() {
 		})
 			.then((res) => res.json())
 			.then((data) => {
-				console.log(data.data[0].url);
-				setOutputImage(data.data[0].url);
-
 				data.data.forEach((generateImage) => {
 					const message = {
 						_id: Math.random().toString(36).substring(7),
@@ -147,6 +149,14 @@ export default function App() {
 		console.log('Print Text : ', text);
 	};
 
+	useEffect(() => {
+		Platform.OS == 'ios'
+			? StatusBarManager.getHeight((statusBarFrameData) => {
+					setStatusBarHeight(statusBarFrameData.height);
+			  })
+			: null;
+	}, []);
+
 	return (
 		<ImageBackground
 			source={require('./assets/bg.jpeg')}
@@ -165,52 +175,54 @@ export default function App() {
 					/>
 				</View>
 
-				<View style={{ flexDirection: 'row', marginHorizontal: 10, marginBottom: 20 }}>
-					<View
-						style={{
-							flex: 1,
-							backgroundColor: 'white',
-							borderRadius: 10,
-							borderColor: 'grey',
-							borderWidth: 1,
-							height: 60,
-							marginHorizontal: 10,
-							justifyContent: 'center',
-							paddingHorizontal: 10,
-						}}
-					>
-						<TextInput
-							placeholder="Enter your question"
-							onChangeText={handleTextInput}
-							value={inputMessage}
-							style={{
-								outlineStyle: 'none',
-							}}
-						/>
-					</View>
-
-					<TouchableOpacity onPress={handleButtonClick}>
+				<KeyboardAvoidingView behavior={'padding'}>
+					<View style={{ flexDirection: 'row', marginHorizontal: 10, marginBottom: 20 }}>
 						<View
 							style={{
-								backgroundColor: '#0084ff',
-								padding: 5,
-								marginRight: 10,
-								marginBottom: 10,
-								borderRadius: '100%',
-								width: 60,
+								flex: 1,
+								backgroundColor: 'white',
+								borderRadius: 10,
+								borderColor: 'grey',
+								borderWidth: 1,
 								height: 60,
+								marginHorizontal: 10,
 								justifyContent: 'center',
+								paddingHorizontal: 10,
 							}}
 						>
-							<MaterialIcons
-								name="send"
-								size={30}
-								color={'white'}
-								style={{ marginHorizontal: 'auto' }}
+							<TextInput
+								placeholder="Enter your question"
+								onChangeText={handleTextInput}
+								value={inputMessage}
+								style={{
+									outlineStyle: 'none',
+								}}
 							/>
 						</View>
-					</TouchableOpacity>
-				</View>
+
+						<TouchableOpacity onPress={handleButtonClick}>
+							<View
+								style={{
+									backgroundColor: '#0084ff',
+									padding: 5,
+									marginRight: 10,
+									marginBottom: 10,
+									borderRadius: '100%',
+									width: 60,
+									height: 60,
+									justifyContent: 'center',
+								}}
+							>
+								<MaterialIcons
+									name="send"
+									size={30}
+									color={'white'}
+									style={{ marginLeft: 'auto', marginRight: 'auto' }}
+								/>
+							</View>
+						</TouchableOpacity>
+					</View>
+				</KeyboardAvoidingView>
 
 				<StatusBar style="auto" />
 			</View>
