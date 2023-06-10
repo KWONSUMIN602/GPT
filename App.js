@@ -125,8 +125,6 @@ export default function App() {
 		>
 			<View style={{ flex: 1 }}>
 				<View style={{ flex: 1, justifyContent: 'center', padding: 10 }}>
-					{/* <Text>{outputImage}</Text> */}
-					{/* <Text>{outputMessage}</Text> */}
 					<GiftedChat
 						messages={messages}
 						renderInputToolbar={() => {}}
