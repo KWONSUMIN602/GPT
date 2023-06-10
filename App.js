@@ -1,23 +1,19 @@
 import { StatusBar } from 'expo-status-bar';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import {
 	ImageBackground,
 	TextInput,
 	TouchableOpacity,
 	View,
 	KeyboardAvoidingView,
-	NativeModules,
 } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { GiftedChat } from 'react-native-gifted-chat';
 import * as Speech from 'expo-speech';
 
-const { StatusBarManager } = NativeModules;
-
 export default function App() {
 	const [messages, setMessages] = useState([]);
 	const [inputMessage, setInputMessage] = useState('');
-	const [statusBarHeight, setStatusBarHeight] = useState(0);
 
 	const handleButtonClick = () => {
 		console.log(inputMessage);
@@ -30,20 +26,23 @@ export default function App() {
 		}
 	};
 
+	const sendGiftedChat = ({ text, _id, name, image }) => {
+		const message = {
+			_id: Math.random().toString(36).substring(7),
+			text: text,
+			createdAt: new Date(),
+			user: { _id, name },
+			image,
+		};
+
+		setMessages((previousMessages) => GiftedChat.append(previousMessages, [message]));
+	};
+
 	/**
 	 * open ai api 의 textchat 함수
 	 */
 	const generateText = () => {
-		console.log('SEND : ', inputMessage);
-
-		const message = {
-			_id: Math.random().toString(36).substring(7),
-			text: inputMessage,
-			createdAt: new Date(),
-			user: { _id: 1 },
-		};
-
-		setMessages((previousMessages) => GiftedChat.append(previousMessages, [message]));
+		sendGiftedChat({ text: inputMessage, _id: 1, name: 'me' });
 
 		fetch('https://api.openai.com/v1/chat/completions', {
 			method: 'POST',
@@ -58,28 +57,14 @@ export default function App() {
 		})
 			.then((res) => res.json())
 			.then((data) => {
-				const message = {
-					_id: Math.random().toString(36).substring(7),
-					text: data.choices[0].messafe.content.trim(),
-					createdAt: new Date(),
-					user: { _id: 2, name: 'OPEN AI' },
-				};
-
-				setMessages((previousMessages) => GiftedChat.append(previousMessages, [message]));
+				sendGiftedChat({ text: data.choices[0].messafe.content.trim(), _id: 2, name: 'OPEN AI' });
 
 				options = {};
 				Speech.speak(data.choices[0].messafe.content, options);
 			})
 			.catch((error) => {
 				console.log('에러 :', error);
-				const message = {
-					_id: Math.random().toString(36).substring(7),
-					text: '잠시후 다시 이용바랍니다.',
-					createdAt: new Date(),
-					user: { _id: 2, name: 'OPEN AI' },
-				};
-
-				setMessages((previousMessages) => GiftedChat.append(previousMessages, [message]));
+				sendGiftedChat({ text: 'Please use it again after a while.', _id: 2, name: 'OPEN AI' });
 			});
 
 		setInputMessage('');
@@ -92,8 +77,6 @@ export default function App() {
 	 * size: 이미지 사이즈
 	 */
 	const generateImages = () => {
-		console.log('SEND : ', inputMessage);
-
 		const message = {
 			_id: Math.random().toString(36).substring(7),
 			text: inputMessage,
@@ -118,27 +101,12 @@ export default function App() {
 			.then((res) => res.json())
 			.then((data) => {
 				data.data.forEach((generateImage) => {
-					const message = {
-						_id: Math.random().toString(36).substring(7),
-						text: 'Image',
-						createdAt: new Date(),
-						user: { _id: 2, name: 'OPEN AI' },
-						image: generateImage.url,
-					};
-
-					setMessages((previousMessages) => GiftedChat.append(previousMessages, [message]));
+					sendGiftedChat({ text: 'Image', _id: 2, name: 'OPEN AI', image: generateImage.url });
 				});
 			})
 			.catch((error) => {
 				console.log('에러 :', error);
-				const message = {
-					_id: Math.random().toString(36).substring(7),
-					text: '잠시후 다시 이용바랍니다.',
-					createdAt: new Date(),
-					user: { _id: 2, name: 'OPEN AI' },
-				};
-
-				setMessages((previousMessages) => GiftedChat.append(previousMessages, [message]));
+				sendGiftedChat({ text: 'Please use it again after a while.', _id: 2, name: 'OPEN AI' });
 			});
 
 		setInputMessage('');
@@ -148,14 +116,6 @@ export default function App() {
 		setInputMessage(text);
 		console.log('Print Text : ', text);
 	};
-
-	useEffect(() => {
-		Platform.OS == 'ios'
-			? StatusBarManager.getHeight((statusBarFrameData) => {
-					setStatusBarHeight(statusBarFrameData.height);
-			  })
-			: null;
-	}, []);
 
 	return (
 		<ImageBackground
