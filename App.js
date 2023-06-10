@@ -1,6 +1,6 @@
 import { StatusBar } from 'expo-status-bar';
 import { useState } from 'react';
-import { ImageBackground, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { ImageBackground, TextInput, TouchableOpacity, View } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { GiftedChat } from 'react-native-gifted-chat';
 import * as Speech from 'expo-speech';
@@ -149,7 +149,7 @@ export default function App() {
 
 	return (
 		<ImageBackground
-			source={require('./assets/bg.webp')}
+			source={require('./assets/bg.jpeg')}
 			resizeMode="cover"
 			style={{ flex: 1, width: '100%', height: '100%' }}
 		>
@@ -182,15 +182,17 @@ export default function App() {
 						<TextInput
 							placeholder="Enter your question"
 							onChangeText={handleTextInput}
-							style={{ border: 'none' }}
 							value={inputMessage}
+							style={{
+								outlineStyle: 'none',
+							}}
 						/>
 					</View>
 
 					<TouchableOpacity onPress={handleButtonClick}>
 						<View
 							style={{
-								backgroundColor: '#2C528C',
+								backgroundColor: '#0084ff',
 								padding: 5,
 								marginRight: 10,
 								marginBottom: 10,
